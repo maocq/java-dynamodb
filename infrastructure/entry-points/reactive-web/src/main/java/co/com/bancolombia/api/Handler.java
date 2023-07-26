@@ -1,5 +1,7 @@
 package co.com.bancolombia.api;
 
+import co.com.bancolombia.model.customer.Customer;
+import co.com.bancolombia.model.customer.gateways.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -9,20 +11,22 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class Handler {
-//private  final UseCase useCase;
-//private  final UseCase2 useCase2;
-    public Mono<ServerResponse> listenGETUseCase(ServerRequest serverRequest) {
-        // usecase.logic();
-        return ServerResponse.ok().bodyValue("");
+
+    private final CustomerRepository customerRepository;
+
+    public Mono<ServerResponse> listenGETCustomer(ServerRequest serverRequest) {
+        String id = serverRequest.queryParam("id").orElse("123");
+        return customerRepository.findById(id)
+                .flatMap(customer -> ServerResponse.ok().bodyValue(customer));
     }
 
-    public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
-        // useCase2.logic();
-        return ServerResponse.ok().bodyValue("");
-    }
+    public Mono<ServerResponse> listenGETRegister(ServerRequest serverRequest) {
+        String id = serverRequest.queryParam("id").orElse("123");
+        var customer = Customer.builder()
+                .id(id)
+                .email("hello@yopmail.com").build();
 
-    public Mono<ServerResponse> listenPOSTUseCase(ServerRequest serverRequest) {
-        // usecase.logic();
-        return ServerResponse.ok().bodyValue("");
+        return customerRepository.register(customer)
+                .flatMap(cust -> ServerResponse.ok().bodyValue(cust));
     }
 }
