@@ -25,6 +25,7 @@ public class CustomerData {
         this.id = id;
     }
 
+    //@DynamoDbSortKey
     @DynamoDbAttribute("email")
     public String getEmail() {
         return email;

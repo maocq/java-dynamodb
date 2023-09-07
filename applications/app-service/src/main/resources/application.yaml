@@ -29,3 +29,7 @@ aws:
   dynamodb:
     endpoint: "http://localhost:8000"
     threads: "10"
+
+logging:
+  level:
+    root: debug

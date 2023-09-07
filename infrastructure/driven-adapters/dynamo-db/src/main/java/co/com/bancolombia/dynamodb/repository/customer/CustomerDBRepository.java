@@ -27,7 +27,10 @@ public class CustomerDBRepository implements CustomerRepository {
 
     @Override
     public Mono<Customer> findById(String id) {
-        Key key = Key.builder().partitionValue(id).build();
+        Key key = Key.builder()
+                .partitionValue(id)
+                //.sortValue("value")
+                .build();
         return Mono.fromFuture(customerTable.getItem(key))
                 .map(this::toEntity);
     }
