@@ -20,6 +20,12 @@ public class Handler {
                 .flatMap(customer -> ServerResponse.ok().bodyValue(customer));
     }
 
+    public Mono<ServerResponse> listenGETCustomers(ServerRequest serverRequest) {
+        String id = serverRequest.queryParam("id").orElse("123");
+        return customerRepository.findCustomers(id)
+                .flatMap(customer -> ServerResponse.ok().bodyValue(customer));
+    }
+
     public Mono<ServerResponse> listenGETRegister(ServerRequest serverRequest) {
         String id = serverRequest.queryParam("id").orElse("123");
         var customer = Customer.builder()

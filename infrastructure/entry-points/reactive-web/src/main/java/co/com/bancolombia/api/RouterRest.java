@@ -13,6 +13,7 @@ public class RouterRest {
     @Bean
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(GET("/api/usecase/customer"), handler::listenGETCustomer)
+                .and(route(GET("/api/usecase/customers"), handler::listenGETCustomers))
                 .and(route(GET("/api/usecase/register"), handler::listenGETRegister));
     }
 }

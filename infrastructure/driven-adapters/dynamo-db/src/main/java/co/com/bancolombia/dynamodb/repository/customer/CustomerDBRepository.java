@@ -5,11 +5,16 @@ import co.com.bancolombia.model.customer.Customer;
 import co.com.bancolombia.model.customer.gateways.CustomerRepository;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+
+import java.util.List;
 
 @Repository
 public class CustomerDBRepository implements CustomerRepository {
@@ -19,7 +24,7 @@ public class CustomerDBRepository implements CustomerRepository {
 
 
     public CustomerDBRepository(DynamoDbEnhancedAsyncClient connectionFactory, ObjectMapper mapper) {
-        customerTable = connectionFactory.table("customer", TableSchema.fromBean(CustomerData.class));
+        customerTable = connectionFactory.table("customerother", TableSchema.fromBean(CustomerData.class));
         this.mapper = mapper;
         //customerTable.createTable();
     }
@@ -29,10 +34,21 @@ public class CustomerDBRepository implements CustomerRepository {
     public Mono<Customer> findById(String id) {
         Key key = Key.builder()
                 .partitionValue(id)
-                //.sortValue("value")
+                .sortValue("hello@yopmail.com")
                 .build();
         return Mono.fromFuture(customerTable.getItem(key))
                 .map(this::toEntity);
+    }
+
+    @Override
+    public Mono<List<Customer>> findCustomers(String id) {
+        QueryConditional keyEqual = QueryConditional.keyEqualTo(b -> b.partitionValue(id));
+        QueryEnhancedRequest tableQuery = QueryEnhancedRequest.builder()
+                .queryConditional(keyEqual)
+                .build();
+
+        return Flux.from(customerTable.query(tableQuery).items().map(this::toEntity))
+                .collectList();
     }
 
     @Override
